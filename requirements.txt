@@ -1,0 +1,5 @@
+nbformat
+nbconvert
+jupyter
+latex
+streamlit
