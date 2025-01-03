@@ -1,5 +1,5 @@
+xhtml2pdf
 nbformat
 nbconvert
 jupyter
-latex
 streamlit
