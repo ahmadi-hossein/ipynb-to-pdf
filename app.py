@@ -7,12 +7,13 @@ import streamlit as st
 from nbconvert import HTMLExporter
 from xhtml2pdf import pisa
 from sklearn.ensemble import RandomForestClassifier
-
+import logging
+logging.basicConfig(level=logging.INFO)
 
 # Function to load the model
 def load_model():
     model_path = 'penguin_sex_model.joblib'
-    st.write(f"Attempting to load model from: {os.path.abspath(model_path)}")
+    logging.info(f"Attempting to load model from: {os.path.abspath(model_path)}")
     try:
         return joblib.load(model_path)
     except FileNotFoundError:
