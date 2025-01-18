@@ -8,16 +8,18 @@ from nbconvert import HTMLExporter
 from xhtml2pdf import pisa
 from sklearn.ensemble import RandomForestClassifier
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
-# Function to load the model
-def load_model():
-    model_path = 'penguin_sex_model.joblib'
-    logging.info(f"Attempting to load model from: {os.path.abspath(model_path)}")
+# Initialize global model variable
+model = None
+
+# Function to load the model from an uploaded file
+def load_uploaded_model(uploaded_model_file):
     try:
-        return joblib.load(model_path)
-    except FileNotFoundError:
-        st.error(f"Error: The model file '{model_path}' could not be found.")
+        return joblib.load(uploaded_model_file)
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
         st.stop()
 
 # Function for prediction
@@ -28,34 +30,6 @@ def predict_penguin_sex(culmen_length, culmen_depth):
         return "Male" if sex_prediction == 1 else "Female"
     except ValueError:
         return "Please enter valid numeric values."
-
-# Load the model at the start
-model = load_model()
-
-# Streamlit UI for penguin sex prediction
-def main():
-    st.title('Penguin Sex Predictor')
-    st.markdown("""
-        Predict the sex of a penguin based on its culmen length and depth.
-        - **Culmen Length**: The length of the penguin's bill in millimeters.
-        - **Culmen Depth**: The depth of the penguin's bill at its base in millimeters.
-    """)
-
-    # User inputs for penguin features
-    culmen_length = st.text_input("Culmen Length (mm)", "0.0")
-    culmen_depth = st.text_input("Culmen Depth (mm)", "0.0")
-
-    if st.button('Predict Penguin Sex'):
-        if culmen_length and culmen_depth:
-            result = predict_penguin_sex(culmen_length, culmen_depth)
-            st.write(f"**Prediction:** {result}")
-        else:
-            st.write("Please fill in all fields.")
-
-if __name__ == "__main__":
-    main()
-
-
 
 # Function to preprocess HTML to remove problematic CSS selectors and fix encoding
 def clean_html_for_pdf(html_content):
@@ -165,15 +139,46 @@ def convert_py_to_pdf(input_py, output_pdf):
     except Exception as e:
         return f"An error occurred: {e}"
 
-# Streamlit UI
+# Streamlit UI for penguin sex prediction and file conversion
 def main():
-    st.title("IPYNB and PY to PDF Converter by Hossein Ahmadi")
+    global model
+    st.title('Penguin Sex Predictor & IPYNB/PY to PDF Converter')
     st.markdown("""
+        **Penguin Sex Predictor:**  
+        Predict the sex of a penguin based on its culmen length and depth.  
+        **Steps:**  
+        1. Upload your model file (.joblib).  
+        2. Input culmen measurements.  
+        3. Get the prediction!
+
+        **IPYNB/PY to PDF Converter:**  
         Upload a Jupyter Notebook file (.ipynb) or Python file (.py), and the app will convert it into a styled PDF.
         For Python files, only the code will be converted without styling for cells.
     """)
 
-    # File upload widget with multiple types
+    # Model upload for penguin sex prediction
+    uploaded_model_file = st.file_uploader("Upload a Trained Model File (.joblib)", type=["joblib"])
+    if uploaded_model_file is not None:
+        st.write("Model uploaded successfully!")
+        model = load_uploaded_model(uploaded_model_file)
+
+    # Check if the model is loaded
+    if model is not None:
+        # User inputs for penguin features
+        culmen_length = st.text_input("Culmen Length (mm)", "0.0")
+        culmen_depth = st.text_input("Culmen Depth (mm)", "0.0")
+
+        if st.button('Predict Penguin Sex'):
+            if culmen_length and culmen_depth:
+                result = predict_penguin_sex(culmen_length, culmen_depth)
+                st.write(f"**Prediction:** {result}")
+            else:
+                st.write("Please fill in all fields.")
+    else:
+        st.warning("Please upload a model file for penguin sex prediction.")
+
+    # File conversion section
+    st.header("IPYNB and PY to PDF Converter")
     uploaded_file = st.file_uploader("Choose a file", type=["ipynb", "py"])
 
     if uploaded_file is not None:
