@@ -1,5 +1,8 @@
-xhtml2pdf
+jupyter
+joblib
+streamlit
+numpy
+scikit-learn
 nbformat
 nbconvert
-jupyter
-streamlit
+xhtml2pdf
