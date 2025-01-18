@@ -8,12 +8,15 @@ from nbconvert import HTMLExporter
 from xhtml2pdf import pisa
 from sklearn.ensemble import RandomForestClassifier
 
+
 # Function to load the model
 def load_model():
+    model_path = 'penguin_sex_model.joblib'
+    st.write(f"Attempting to load model from: {os.path.abspath(model_path)}")
     try:
-        return joblib.load('penguin_sex_model.joblib')
+        return joblib.load(model_path)
     except FileNotFoundError:
-        st.error("Error: The model file 'penguin_sex_model.joblib' could not be found.")
+        st.error(f"Error: The model file '{model_path}' could not be found.")
         st.stop()
 
 # Function for prediction
