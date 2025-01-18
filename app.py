@@ -13,14 +13,14 @@ def clean_html_for_pdf(html_content):
     cleaned_html = re.sub(r'<style.*?>.*?</style>', '', cleaned_html, flags=re.DOTALL)
     return cleaned_html
 
-# Function to convert Python (.py) file to PDF
+# Function to convert Python (.py) file to PDF, preserving HTML tags
 def convert_py_to_pdf(input_py, output_pdf):
     try:
         # Read the .py file content
         with open(input_py, 'r', encoding='utf-8') as f:
             py_content = f.read()
 
-        # Wrap Python code in HTML with syntax highlighting
+        # Wrap Python code in HTML, treating HTML tags in the code as valid
         html_content = f"""
         <html>
         <head>
@@ -37,11 +37,17 @@ def convert_py_to_pdf(input_py, output_pdf):
                 padding: 10px;
                 overflow-x: auto;
             }}
+            .rendered-html {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                padding: 10px;
+            }}
         </style>
         </head>
         <body>
-        <h1>Python Script</h1>
-        <pre>{py_content}</pre>
+        <h1>Python Script with HTML Content</h1>
+        <div class="rendered-html">{py_content}</div>
         </body>
         </html>
         """
@@ -65,7 +71,8 @@ def main():
     st.title("File to PDF Converter by Hossein Ahmadi")
     st.markdown("""
         Upload a Jupyter Notebook file (.ipynb) or Python script file (.py), 
-        and the app will convert it into a styled PDF.
+        and the app will convert it into a styled PDF. 
+        Any HTML tags in your Python file will also be rendered correctly in the PDF.
     """)
 
     # File upload widget
