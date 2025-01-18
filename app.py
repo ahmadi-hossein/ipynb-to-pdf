@@ -1,9 +1,57 @@
-import streamlit as st
-import nbformat
-from nbconvert import HTMLExporter
-from xhtml2pdf import pisa
 import re
 import os
+import nbformat
+import joblib
+import numpy as np
+import streamlit as st
+from nbconvert import HTMLExporter
+from xhtml2pdf import pisa
+from sklearn.ensemble import RandomForestClassifier
+
+# Function to load the model
+def load_model():
+    try:
+        return joblib.load('penguin_sex_model.joblib')
+    except FileNotFoundError:
+        st.error("Error: The model file 'penguin_sex_model.joblib' could not be found.")
+        st.stop()
+
+# Function for prediction
+def predict_penguin_sex(culmen_length, culmen_depth):
+    try:
+        features = np.array([[float(culmen_length), float(culmen_depth)]])
+        sex_prediction = model.predict(features)[0]
+        return "Male" if sex_prediction == 1 else "Female"
+    except ValueError:
+        return "Please enter valid numeric values."
+
+# Load the model at the start
+model = load_model()
+
+# Streamlit UI for penguin sex prediction
+def main():
+    st.title('Penguin Sex Predictor')
+    st.markdown("""
+        Predict the sex of a penguin based on its culmen length and depth.
+        - **Culmen Length**: The length of the penguin's bill in millimeters.
+        - **Culmen Depth**: The depth of the penguin's bill at its base in millimeters.
+    """)
+
+    # User inputs for penguin features
+    culmen_length = st.text_input("Culmen Length (mm)", "0.0")
+    culmen_depth = st.text_input("Culmen Depth (mm)", "0.0")
+
+    if st.button('Predict Penguin Sex'):
+        if culmen_length and culmen_depth:
+            result = predict_penguin_sex(culmen_length, culmen_depth)
+            st.write(f"**Prediction:** {result}")
+        else:
+            st.write("Please fill in all fields.")
+
+if __name__ == "__main__":
+    main()
+
+
 
 # Function to preprocess HTML to remove problematic CSS selectors and fix encoding
 def clean_html_for_pdf(html_content):
